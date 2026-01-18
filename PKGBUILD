@@ -40,19 +40,6 @@ prepare() {
   cp -r ../libultraship-${_lus_commit} libultraship
   cp -r ../ZAPDTR-${_ZAPDTR_commit} ZAPDTR
   cp -r ../OTRExporter-${_OTRExporter_commit} OTRExporter
-
-  if [ "$__generate_headers" = 1 ]; then
-    # check for any roms in the directory where PKGBUILD resides
-    # and copy them to Shipwright/OTRExporter. It doesn't matter
-    # which rom we'll be using, let extract_assets.py do the guessing.
-    roms=( "${startdir}/"*.*64 )
-    if (( "${#roms[@]}" )); then
-      cp "${roms[@]}" OTRExporter
-    else
-      echo "NO ROMS FOUND! Please place them in \"${startdir}\"."
-      return 1
-    fi
-  fi
 }
 
 build() {
@@ -70,13 +57,7 @@ build() {
     -DBUILD_REMOTE_CONTROL=1
 
   cmake --build build --target ZAPD --config $BUILD_TYPE $NINJAFLAGS
-
-  if [ "$__generate_headers" = 1 ]; then
-    cmake --build build --target ExtractAssetsHeaders $NINJAFLAGS
-  else
-    cmake --build build --target GenerateSohOtr $NINJAFLAGS
-  fi
-
+  cmake --build build --target GenerateSohOtr $NINJAFLAGS
   cmake --build build --target soh --config $BUILD_TYPE $NINJAFLAGS
 }
 
@@ -84,8 +65,6 @@ package_soh() {
   pkgdesc="An unofficial port of The Legend of Zelda Ocarina of Time for PC, Wii U, and Switch"
   depends=("${_depends_soh[@]}" "${_depends_lus[@]}")
   license=("unknown")
-  optdepends=("soh-otr: OTR asset file in order to run"
-              "soh-otr-mq: OTR asset file in order to run (Master Quest)")
 
   cd "${srcdir}/${_reponame}-${pkgver}"
 
@@ -93,6 +72,7 @@ package_soh() {
 
   install -dm755 "${pkgdir}/usr/bin/"
   ln -s "${SHIP_PREFIX}/soh.elf" "${pkgdir}/usr/bin/soh"
+  install -Dm644 "build/soh/soh.o2r" "${pkgdir}/usr/bin/soh.o2r"
   install -Dm644 "${srcdir}/soh.desktop" -t "${pkgdir}/usr/share/applications"
   install -Dm644 soh/macosx/sohIcon.png "${pkgdir}/usr/share/pixmaps/soh.png"
 
