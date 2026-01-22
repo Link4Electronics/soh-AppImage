@@ -6,7 +6,7 @@ _ZAPDTR_commit=684f21a475dcfeee89938ae1f4afc42768a3e7ef
 _OTRExporter_commit=32e088e28c8cdd055d4bb8f3f219d33ad37963f3
 
 pkgbase=soh
-pkgname=(soh)
+pkgname=(soh soh-otr-exporter)
 pkgver=9.1.2
 pkgrel=1
 arch=("x86_64" "aarch64")
@@ -78,4 +78,18 @@ package_soh() {
   install -dm755 "${pkgdir}/usr/share/doc/soh"
   install -Dm644 "README.md" "${pkgdir}/usr/share/doc/soh"
   cp -r docs "${pkgdir}/usr/share/doc/soh/docs"
+}
+
+package_soh-otr-exporter() {
+  pkgdesc="OTR generation tools for SoH. Includes asset XML files needed for generation."
+  license=("MIT")
+  depends=("${_depends_soh_otr_exporter[@]}" "${_depends_lus[@]}")
+
+  cd "${srcdir}/${_reponame}-${pkgver}"
+
+  DESTDIR="${pkgdir}" cmake --install build --component extractor
+
+  install -dm755 "${pkgdir}/usr/bin"
+  install -dm755 "${pkgdir}/usr/share/licenses/soh-otr-exporter"
+  install -Dm644 "OTRExporter/LICENSE" "${pkgdir}/usr/share/licenses/soh-otr-exporter/LICENSE"
 }
