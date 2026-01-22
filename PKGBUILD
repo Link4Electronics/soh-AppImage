@@ -28,7 +28,7 @@ sha256sums=('c8ef222945595f3119dad127f3a0be41b7755a2df519b008f99a2abe5c1ee0bd'
             '91a863f8899f2ebfc7868ccad4b5982ae416799c76358ce5b2c0edc11e42a672'
             '7546e95e56f324db6d985ef4e7a4c983171b7cf7bce425bc88c0cecea49dea32')
 
-SHIP_PREFIX=/opt/soh
+#SHIP_PREFIX=/opt/soh
 
 prepare() {
   cd "${srcdir}/${_reponame}-${pkgver}"
@@ -49,9 +49,10 @@ build() {
     -Bbuild \
     -GNinja \
     -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-    -DNON_PORTABLE=On \
-    -DCMAKE_INSTALL_PREFIX=$SHIP_PREFIX \
+    -DCMAKE_INSTALL_PREFIX="/usr" \
     -DBUILD_REMOTE_CONTROL=1
+    #-DNON_PORTABLE=On \
+    #-DCMAKE_INSTALL_PREFIX=$SHIP_PREFIX \
 
   cmake --build build --target ZAPD --config $BUILD_TYPE $NINJAFLAGS
   cmake --build build --target GenerateSohOtr $NINJAFLAGS
@@ -68,9 +69,9 @@ package_soh() {
   DESTDIR="${pkgdir}" cmake --install build --component ship
 
   install -dm755 "${pkgdir}/usr/bin/"
-  ln -s "${SHIP_PREFIX}/soh.elf" "${pkgdir}/usr/bin/soh"
+  ln -s "${srcdir}/${_reponame}-${pkgver}/build/soh.elf" "${pkgdir}/usr/bin/soh"
   #install -Dm644 "${srcdir}/${_reponame}-${pkgver}/soh.o2r" "${pkgdir}/usr/bin/soh.o2r"
-  install -Dm644 "${srcdir}/${_reponame}-${pkgver}/soh.o2r" "${pkgdir}${SHIP_PREFIX}/soh.o2r"
+  install -Dm644 "${srcdir}/${_reponame}-${pkgver}/build/soh.o2r" "${pkgdir}/usr/bin/soh.o2r"
   #mv "${pkgdir}/soh.o2r" "${SHIP_PREFIX}/soh.o2r"
   install -Dm644 "${srcdir}/soh.desktop" -t "${pkgdir}/usr/share/applications"
   install -Dm644 soh/macosx/sohIcon.png "${pkgdir}/usr/share/pixmaps/soh.png"
